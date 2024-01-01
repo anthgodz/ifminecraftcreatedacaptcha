@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA Demo</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .captcha-container {
+            display: none;
+            grid-template-columns: auto auto auto;
+            gap: 10px;
+            width: 300px;
+        }
+        .captcha-box {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-image: url('slot.png');
+            background-size: cover;
+            border: 1px solid #000;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 24px;
+            position: relative;
+        }
+        .debug-text {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 12px;
+        }
+        #success-message, #wrong-message {
+            display: none;
+            text-align: center;
+        }
+        #instruction {
+            background-color: blue;
+            padding: 10px;
+            color: white;
+            grid-column: 1 / span 3;
+            text-align: center;
+        }
+        .check-image {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <img id="confirm-image" src="confirm.png" alt="Confirm Image" onclick="revealContent()">
+    <h2 id="instruction" style="display: none;">Select all boxes with light gray stained glass panes</h2>
+    <div class="captcha-container">
+        <div class="captcha-box" data-index="1">1<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="2">2<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="3">3<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="4">4<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="5">5<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="6">6<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="7">7<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="8">8<img src="check.png" class="check-image"></div>
+        <div class="captcha-box" data-index="9">9<img src="check.png" class="check-image"></div>
+    </div>
+    <p id="success-message" style="color: green; display: none;">Success</p>
+    <p id="wrong-message" style="color: red; display: none;">Wrong, please try again</p>
+    <p id="debug-text" class="debug-text" style="display: none;"></p>
+    <script>
+        function revealContent() {
+            document.getElementById('confirm-image').style.display = 'none';
+            document.getElementById('instruction').style.display = 'block';
+            document.querySelector('.captcha-container').style.display = 'grid';
+            document.getElementById('debug-text').style.display = 'block';
+        }
+
+        const boxes = document.querySelectorAll('.captcha-box');
+        let correctIndexes = [];
+        let selectedIndexes = [];
+        boxes.forEach((box, index) => {
+            box.addEventListener('click', () => {
+                if (!box.classList.contains('selected')) {
+                    box.classList.add('selected');
+                    box.querySelector('.check-image').style.display = 'block';
+                    selectedIndexes.push(index + 1);
+                    if (selectedIndexes.length === 3) {
+                        const allSelected = selectedIndexes.every(index => correctIndexes.includes(index));
+                        if (allSelected) {
+                            document.getElementById('success-message').style.display = 'block';
+                        } else {
+                            document.getElementById('wrong-message').style.display = 'block';
+                        }
+                    }
+                } else {
+                    box.classList.remove('selected');
+                    box.querySelector('.check-image').style.display = 'none';
+                    selectedIndexes = selectedIndexes.filter(i => i !== index + 1);
+                    document.getElementById('success-message').style.display = 'none';
+                    document.getElementById('wrong-message').style.display = 'none';
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            while (correctIndexes.length < 3) {
+                const randomIndex = Math.floor(Math.random() * 9) + 1;
+                if (!correctIndexes.includes(randomIndex)) {
+                    correctIndexes.push(randomIndex);
+                }
+            }
+            document.getElementById('debug-text').innerText = `Correct indexes: ${correctIndexes.join(', ')}`;
+        });
+    </script>
+</body>
+</html>
